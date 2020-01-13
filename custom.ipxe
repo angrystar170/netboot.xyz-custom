@@ -7,29 +7,134 @@
 clear custom_choice
 menu iSCSI Access (Form 172.30.1.9)
 item --gap This is the first sub menu
-item option_one ${space} iSCSI Mount
-item option_two ${space} iSCSI Unmount
-item option_three ${space} iSCSI Boot
-item option_four ${space} Winpe Boot
+item iscsihook ${space} iSCSI Mount
+item iscsiunhook ${space} iSCSI Unmount
+item iscsiboot ${space} iSCSI Boot
+item winpe ${space} Winpe Boot
 choose custom_choice || goto custom_exit
 echo ${cls}
 goto ${custom_choice}
 goto custom_exit
 
-:option_one
+:iscsihook
 set keep-san 1
 sanhook iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
 boot || goto custom_exit
 
-:option_two
-set keep-san 1
+:iscsiunhook
+set keep-san 0
 sanunhook iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
 boot || goto custom_exit
 
-:option_three
+:iscsiunboot
 set keep-san 1
 sanboot iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
 boot || goto custom_exit
+
+:winpe
+menu WinPE & Setup
+isset ${efi-32} || item win10 Windows 10 20H1
+isset ${efi-32} || item WDO_Media64 Windows Defender Offline
+isset ${efi-32} || item DreamPE_x64_AIO DreamPE AIO (x64)
+isset ${efi-32} || item HulkbusterPE_AIO Hulkbuster Windows 10 PE AIO
+isset ${efi-32} || item AcronisBootablePEMedia Acronis True Image 2020 Bootable PE Media
+### add new menu for WinPE, dont edit this line
+item back Back to top menu...
+iseq ${menu-default} menu-recovery && isset ${submenu-default} && goto menu-recovery-timed ||
+choose selected && goto ${selected} || goto start
+:menu-recovery-timed
+choose --timeout ${submenu-timeout} --default ${submenu-default} selected && goto ${selected} || goto start
+
+### Start win10
+:win10
+set path_file /Files/WinSetup/win10/boot.wim
+kernel ${boot-url}/Tools/MS/PXE/wimboot.${arch2}					rawbcd
+initrd ${boot-url}/Tools/MS/PXE/aioboot.pxe							aioboot.pxe
+initrd ${boot-url}/networkpath.txt									networkpath.txt
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segmono_boot.ttf			segmono_boot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoe_slboot.ttf			segoe_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoen_slboot.ttf		segoen_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/wgl4_boot.ttf			wgl4_boot.ttf
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr			bootmgr || ###
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr.exe		bootmgr.exe || initrd ${boot-url}/Tools/MS/PXE/${arch2}/bootmgr.efi
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/boot/bcd			BCD || initrd ${boot-url}/Tools/MS/PXE/efi/microsoft/boot/bcd		BCD
+initrd ${boot-url}/Tools/MS/boot.sdi								boot.sdi
+initrd ${boot-url}${path_file}										boot.wim
+boot || goto failed
+goto start
+### End win10
+### Start WDO_Media64
+:WDO_Media64
+set path_file /Files/WinPE/WDO_Media64/boot.wim
+kernel ${boot-url}/Tools/MS/PXE/wimboot.${arch2}					rawbcd
+initrd ${boot-url}/Tools/MS/PXE/aioboot.pxe							aioboot.pxe
+initrd ${boot-url}/networkpath.txt									networkpath.txt
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segmono_boot.ttf			segmono_boot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoe_slboot.ttf			segoe_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoen_slboot.ttf		segoen_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/wgl4_boot.ttf			wgl4_boot.ttf
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr			bootmgr || ###
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr.exe		bootmgr.exe || initrd ${boot-url}/Tools/MS/PXE/${arch2}/bootmgr.efi
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/boot/bcd			BCD || initrd ${boot-url}/Tools/MS/PXE/efi/microsoft/boot/bcd		BCD
+initrd ${boot-url}/Tools/MS/boot.sdi								boot.sdi
+initrd ${boot-url}${path_file}										boot.wim
+boot || goto failed
+goto start
+### End WDO_Media64
+### Start DreamPE_x64_AIO
+:DreamPE_x64_AIO
+set path_file /Files/WinPE/DreamPE_x64_AIO/boot.wim
+kernel ${boot-url}/Tools/MS/PXE/wimboot.${arch2}					rawbcd
+initrd ${boot-url}/Tools/MS/PXE/aioboot.pxe							aioboot.pxe
+initrd ${boot-url}/networkpath.txt									networkpath.txt
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segmono_boot.ttf			segmono_boot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoe_slboot.ttf			segoe_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoen_slboot.ttf		segoen_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/wgl4_boot.ttf			wgl4_boot.ttf
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr			bootmgr || ###
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr.exe		bootmgr.exe || initrd ${boot-url}/Tools/MS/PXE/${arch2}/bootmgr.efi
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/boot/bcd			BCD || initrd ${boot-url}/Tools/MS/PXE/efi/microsoft/boot/bcd		BCD
+initrd ${boot-url}/Tools/MS/boot.sdi								boot.sdi
+initrd ${boot-url}${path_file}										boot.wim
+boot || goto failed
+goto start
+### End DreamPE_x64_AIO
+### Start HulkbusterPE_AIO
+:HulkbusterPE_AIO
+set path_file /Files/WinPE/HulkbusterPE_AIO/boot.wim
+kernel ${boot-url}/Tools/MS/PXE/wimboot.${arch2}					rawbcd
+initrd ${boot-url}/Tools/MS/PXE/aioboot.pxe							aioboot.pxe
+initrd ${boot-url}/networkpath.txt									networkpath.txt
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segmono_boot.ttf			segmono_boot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoe_slboot.ttf			segoe_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoen_slboot.ttf		segoen_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/wgl4_boot.ttf			wgl4_boot.ttf
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr			bootmgr || ###
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr.exe		bootmgr.exe || initrd ${boot-url}/Tools/MS/PXE/${arch2}/bootmgr.efi
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/boot/bcd			BCD || initrd ${boot-url}/Tools/MS/PXE/efi/microsoft/boot/bcd		BCD
+initrd ${boot-url}/Tools/MS/boot.sdi								boot.sdi
+initrd ${boot-url}${path_file}										boot.wim
+boot || goto failed
+goto start
+### End HulkbusterPE_AIO
+### Start AcronisBootablePEMedia
+:AcronisBootablePEMedia
+set path_file /Files/WinPE/AcronisBootablePEMedia/boot.wim
+kernel ${boot-url}/Tools/MS/PXE/wimboot.${arch2}					rawbcd
+initrd ${boot-url}/Tools/MS/PXE/aioboot.pxe							aioboot.pxe
+initrd ${boot-url}/networkpath.txt									networkpath.txt
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segmono_boot.ttf			segmono_boot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoe_slboot.ttf			segoe_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/segoen_slboot.ttf		segoen_slboot.ttf
+initrd ${boot-url}/Tools/MS/PXE/boot/fonts/wgl4_boot.ttf			wgl4_boot.ttf
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr			bootmgr || ###
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/bootmgr.exe		bootmgr.exe || initrd ${boot-url}/Tools/MS/PXE/${arch2}/bootmgr.efi
+isset ${legacy} && initrd ${boot-url}/Tools/MS/PXE/boot/bcd			BCD || initrd ${boot-url}/Tools/MS/PXE/efi/microsoft/boot/bcd		BCD
+initrd ${boot-url}/Tools/MS/boot.sdi								boot.sdi
+initrd ${boot-url}${path_file}										boot.wim
+boot || goto failed
+goto start
+### End AcronisBootablePEMedia
 
 :custom_exit
 chain utils.ipxe
