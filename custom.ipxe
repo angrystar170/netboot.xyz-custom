@@ -4,6 +4,11 @@
 ###
 
 :start
+set next-server 172.30.1.9
+set nfs-server ${next-server}
+set boot-url tftp://${next-server}
+set http-url http://${next-server}:808
+
 clear custom_choice
 menu iSCSI Access (Form 172.30.1.9)
 item --gap This is the first sub menu
@@ -19,17 +24,16 @@ goto custom_exit
 :iscsihook
 set keep-san 1
 sanhook iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
-boot || goto custom_exit
+boot || goto start
 
 :iscsiunhook
-set keep-san 0
-sanunhook iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
-boot || goto custom_exit
+sanunhook
+boot || goto start
 
 :iscsiunboot
 set keep-san 1
 sanboot iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
-boot || goto custom_exit
+boot || goto start
 
 :winpe
 menu WinPE & Setup
@@ -39,7 +43,7 @@ isset ${efi-32} || item DreamPE_x64_AIO DreamPE AIO (x64)
 isset ${efi-32} || item HulkbusterPE_AIO Hulkbuster Windows 10 PE AIO
 isset ${efi-32} || item AcronisBootablePEMedia Acronis True Image 2020 Bootable PE Media
 ### add new menu for WinPE, dont edit this line
-item back Back to top menu...
+item start Back to top menu...
 iseq ${menu-default} menu-recovery && isset ${submenu-default} && goto menu-recovery-timed ||
 choose selected && goto ${selected} || goto start
 :menu-recovery-timed
