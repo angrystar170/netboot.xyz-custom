@@ -4,10 +4,33 @@
 ###
 
 :start
-set keep-san 1
-sanboot iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1 || goto falied
-boot
+clear custom_choice
+menu This is a Test Menu
+item --gap This is the first sub menu
+item option_one ${space} iSCSI Mount
+item option_two ${space} iSCSI Unmount
+item option_three ${space} iSCSI Boot
+item option_four ${space} Winpe Boot
+choose custom_choice || goto custom_exit
+echo ${cls}
+goto ${custom_choice}
 goto custom_exit
 
+:option_one
+set keep-san 1
+sanhook iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
+boot || goto custom_exit
+
+:option_two
+set keep-san 1
+sanunhook iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
+boot || goto custom_exit
+
+:option_three
+set keep-san 1
+sanboot iscsi:172.30.1.9:::1:iqn.angry-1000.com:OS-1
+boot || goto custom_exit
+
 :custom_exit
-exit 0
+chain utils.ipxe
+exit
