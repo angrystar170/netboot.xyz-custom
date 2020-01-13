@@ -4,8 +4,7 @@
 ###
 
 :start
-echo Hello world!
-sleep 10
+chain menu.ipxe
 goto custom_exit
 
 :custom_exit
