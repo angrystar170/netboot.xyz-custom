@@ -4,11 +4,6 @@
 ###
 
 :start
-set next-server 172.30.1.9
-set nfs-server ${next-server}
-set boot-url tftp://${next-server}
-set http-url http://${next-server}:808
-set keep-san 1
 
 clear custom_choice
 menu iSCSI Access (Form 172.30.1.9)
@@ -35,7 +30,7 @@ sanboot || goto start
 goto start
 
 :winpe
-chain --autofree menu2.ipxe
+chain tftp://172.30.1.9/menu2.ipxe
 
 :custom_exit
 exit
