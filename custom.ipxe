@@ -9,7 +9,7 @@ clear custom_choice
 menu iSCSI Access (Form 172.30.1.9)
 item --gap This is the first sub menu
 item iscsiboot1 ${space} openSUSE iSCSI Boot
-item iscsiboot2 ${space} Windows 10 iSCSI Boot
+item iscsiboot2 ${space} Windows 7 iSCSI Boot
 choose custom_choice || goto custom_exit
 echo ${cls}
 goto ${custom_choice}
